@@ -1,3 +1,7 @@
+<?php
+include 'proses/getdata.php';
+
+ ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -50,13 +54,13 @@
                     </a>
                 </div>
                 <ul class="nav">
-                    <li class="nav-item active">
+                    <li >
                         <a class="nav-link" href="index.php">
                             <i class="nc-icon nc-chart-pie-35"></i>
                             <p>Laporkan Sampah</p>
                         </a>
                     </li>
-                    <li>
+                    <li class="nav-item active">
                         <a class="nav-link" href="./lokasi.php">
                             <i class="nc-icon nc-circle-09"></i>
                             <p>Data Lokasi Sampah</p>
@@ -186,15 +190,9 @@
                                   <button class="btn btn-info" onclick="gpsLokasi()"> GPS </button>
                                   <button class="btn btn-info" onclick="manualLokasi()"> Manual </button>
 
-                                     <form enctype="multipart/form-data" class="" action="upload/upload.php" method="POST">
-                                     <label for="lat">latitude :</label> <br/>
-                                     <input type="text" id="lat" name="lat" readonly>
-                                     <label for="lon">Longitude :</label>
-                                     <input type="text" id="lon" name="lon" readonly>
+                                  <button style=" margin-top:30px;" class="btn btn-sucess" onclick="lokasiSampah()"> Lokasi Sampah </button>
 
-                                     <input type="file" style="margin-top:10px;" name="fileupload" id="fileupload">
-                                     <input type="submit" style="margin-top:40px;" class="btn btn-sucess" value="inputkan" name="button">
-                                     </form>
+
 
 
                                 </div>
@@ -381,11 +379,7 @@ function gpsLokasi()
 
   navigator.geolocation.getCurrentPosition(function(location) {
     var latlng = new L.LatLng(location.coords.latitude, location.coords.longitude);
-    var inputLat = document.getElementById('lat');
-    lat.value=location.coords.latitude;
-    var inputLon = document.getElementById('lon');
-    lon.value=location.coords.longitude;
-    mymap.setView(latlng, 15);
+    mymap.setView(latlng, 12);
     newMarker = new L.marker(latlng).addTo(mymap);
   });
 
@@ -415,12 +409,27 @@ function manualLokasi()
           newMarker = new L.marker(e.latlng).addTo(mymap);
           latitude=e.latlng.lat;
           longitude=e.latlng.lng;
-          // Menampilkan lat dan lon pada input text
-          var inputLat = document.getElementById('lat');
-          lat.value=latitude;
-          var inputLon = document.getElementById('lon');
-          lon.value=longitude;
   });
+
+}
+
+function lokasiSampah()
+{
+  var tampilMarker=[];
+  var argeojson = <?php echo json_encode($data) ?>;
+  // Sip yg ini sduah jalan
+  console.log(argeojson[0]['latitude']);
+  console.log(argeojson[0]['longitude']);
+  console.log(argeojson.length);
+
+  length= argeojson.length;
+  j=0;
+  while(j<length)
+  {
+    var marker = L.marker([argeojson[j]['latitude'], argeojson[j]['longitude']]).addTo(mymap);
+    j++;
+  }
+
 
 }
 
