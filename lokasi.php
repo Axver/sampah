@@ -31,6 +31,13 @@ include 'proses/getdata.php';
   crossorigin=""></script>
   <!-- Sweetalert -->
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<!-- Leaflet Routing -->
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
   <style>
     #mapid { height: 500px; }
   </style>
@@ -190,7 +197,25 @@ include 'proses/getdata.php';
                                   <button class="btn btn-info" onclick="gpsLokasi()"> GPS </button>
                                   <button class="btn btn-info" onclick="manualLokasi()"> Manual </button>
 
-                                  <button style=" margin-top:30px;" class="btn btn-sucess" onclick="lokasiSampah()"> Lokasi Sampah </button>
+                                  <button style="margin-top:30px;" class="btn btn-sucess" onclick="lokasiSampah()"> Lokasi Sampah </button>
+                                  <select id ="lokasiData"style="margin-top:30px;" class="form-control" name="" onchange="fungsitest()">
+
+                                    <?php
+                                     $i=0;
+                                     $panjang= count($data);
+                                     while ($i<$panjang)
+                                     {
+                                        echo "<option label='".$data[$i]['name']."' value='".$data[$i]['latitude'].",".$data[$i]['longitude']."'>"."</option>";
+                                        $i++;
+                                     }
+
+
+
+
+                                     ?>
+
+                                  </select>
+                                  <button style=" margin-top:30px;" class="btn btn-sucess" onclick="ruteSampah()"> Rute Ke Lokasi </button>
 
 
 
@@ -373,7 +398,9 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
 }).addTo(mymap);
 
 
-
+var latlng;
+var latAwal;
+var lonAwal;
 function gpsLokasi()
 {
 
@@ -381,6 +408,9 @@ function gpsLokasi()
     var latlng = new L.LatLng(location.coords.latitude, location.coords.longitude);
     mymap.setView(latlng, 12);
     newMarker = new L.marker(latlng).addTo(mymap);
+    latAwal=location.coords.latitude;
+    lonAwal=location.coords.longitude;
+
   });
 
 
@@ -399,10 +429,13 @@ function disabled()
   document.getElementById("lon").disabled = true;
 }
 
+var latitude;
+var longitude;
+var tampilMarker=[];
+var argeojson = <?php echo json_encode($data) ?>;
 
 function manualLokasi()
-{ var latitude;
-  var longitude;
+{
   var tanda;
   swal("Pilih Posisi Sampah tersebut");
   mymap.on('click', function(e) {
@@ -410,13 +443,13 @@ function manualLokasi()
           latitude=e.latlng.lat;
           longitude=e.latlng.lng;
   });
+  latAwal=latitude;
+  lonAwal=longitude;
 
 }
 
 function lokasiSampah()
 {
-  var tampilMarker=[];
-  var argeojson = <?php echo json_encode($data) ?>;
   // Sip yg ini sduah jalan
   console.log(argeojson[0]['latitude']);
   console.log(argeojson[0]['longitude']);
@@ -430,9 +463,40 @@ function lokasiSampah()
     j++;
   }
 
+}
+
+function ruteSampah()
+{
+  L.Routing.control({
+  waypoints: [
+    L.latLng(-0.9063342699592115, 100.37538748845037),
+    L.latLng(-0.9094237868467254, 100.36955291085437)
+  ]
+  }).addTo(mymap);
 
 }
 
+function fungsitest()
+{
+
+  console.log("Hahaha Kampang");
+  var daerah= document.getElementById("lokasiData").value;
+  console.log(daerah);
+  //Pisahkan lagi variabel tersebut
+  var coords = daerah.split(",");
+  console.log(coords);
+
+
+  L.Routing.control({
+  waypoints: [
+    L.latLng(latAwal, lonAwal),
+    L.latLng(coords[0],coords[1])
+  ]
+  }).addTo(mymap);
+
+
+
+}
 
 
 </script>
